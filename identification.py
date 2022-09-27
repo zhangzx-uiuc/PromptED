@@ -1,7 +1,6 @@
 import json
 import re
 import tqdm
-import sys
 import numpy as np
 
 from openprompt.data_utils import InputExample, InputFeatures
@@ -283,11 +282,16 @@ if __name__ == "__main__":
 
     max_f1 = 0.0
     max_patience, current_patience = 3, 0
+    if_exit = False
 
     for epoch in range(10):
+        if if_exit:
+            break
         tot_loss = 0.0
         progress = tqdm.tqdm(total=len(train_dataloader), ncols=150, desc="Epoch: "+str(epoch))
         for step, inputs in enumerate(train_dataloader):
+            if if_exit:
+                break
             if use_cuda:
                 inputs = to_device(inputs, device)
             logits = prompt_model(inputs)
@@ -333,10 +337,12 @@ if __name__ == "__main__":
                 else:
                     current_patience += 1
                     if current_patience > max_patience:
-                        sys.exit(0)
-
+                        if_exit = True
+            
+                
             progress.update(1)
         progress.close()
+    
     
 
     ### Dumped out the results for test dataset.
