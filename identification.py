@@ -305,20 +305,23 @@ if __name__ == "__main__":
                 allpreds, alllabels = [], []
                 # Validation:
                 valid_progress = tqdm.tqdm(total=len(validation_dataloader), ncols=150, desc="Validation: ")
-                for step, inputs in enumerate(validation_dataloader):
-                    if use_cuda:
-                        inputs = to_device(inputs, device)
-                    logits = prompt_model(inputs)
-                    labels = inputs['label']
-                    label_list = convert_labels_to_list(labels)
-                    pred_labels = predict(logits)
+                prompt_model.eval()
+                with torch.no_grad():
+                    for step, inputs in enumerate(validation_dataloader):
+                        if use_cuda:
+                            inputs = to_device(inputs, device)
+                        logits = prompt_model(inputs)
+                        labels = inputs['label']
+                        label_list = convert_labels_to_list(labels)
+                        pred_labels = predict(logits)
 
-                    alllabels.extend(pred_labels)
-                    allpreds.extend(label_list)
-                    valid_progress.update(1)
+                        alllabels.extend(pred_labels)
+                        allpreds.extend(label_list)
+                        valid_progress.update(1)
 
                 valid_progress.close()
-
+                prompt_model.train()
+                
                 p, r, f, total = evaluation(alllabels, allpreds, vocabulary)
                 print("F1-Score: " + str(f))
                 with open("results.json", 'w', encoding='utf-8') as f_out:
