@@ -319,8 +319,8 @@ if __name__ == "__main__":
                         label_list = convert_labels_to_list(labels)
                         pred_labels = predict(logits)
 
-                        alllabels.extend(pred_labels)
-                        allpreds.extend(label_list)
+                        alllabels.extend(label_list)
+                        allpreds.extend(pred_labels)
                         valid_progress.update(1)
 
                 valid_progress.close()
